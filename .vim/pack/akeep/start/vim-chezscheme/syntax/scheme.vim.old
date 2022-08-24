@@ -1,0 +1,1340 @@
+" Vim syntax file
+" Language: Chez Scheme (R6RS + Chez Scheme extensions)
+" Last Change: 2019 Sept 17
+" Maintainer: Andy Keep <andy.keep@gmail.com>
+" 
+" Based on older vim scheme syntax file:
+" Language: Scheme (R5RS + some R6RS extras)
+" Last Change: 2009 Nov 27
+" Maintainer: Sergey Khorev <sergey.khorev@gmail.com>
+" Original author: Dirk van Deun <dirk@igwe.vub.ac.be>
+"
+" With some additional input from the current vim scheme syntax file:
+" Language: Scheme (R7RS)
+" Last Change: 2018-01-06
+" Author: Evan Hanson <evhan@foldling.org>
+" Maintainer: Evan Hanson <evhan@foldling.org>
+" Previous Author: Dirk van Deun <dirk@igwe.vub.ac.be>
+" Previous Maintainer: Sergey Khorev <sergey.khorev@gmail.com>
+" URL: https://foldling.org/vim/syntax/scheme.vim
+"
+if exists('b:current_syntax')
+  finish
+endif
+
+let s:cpo = &cpo
+set cpo&vim
+
+" Fascist highlighting: everything that doesn't fit the rules is an error...
+
+syntax match schemeError /\v[^ \t()\[\]";#]*/
+syntax match schemeError /)/
+
+syntax match schemeFormatDirective /\v\~([0-9,:@-]|'.)*\c[~|&%crdboxfeg$asw_<>iti*[\]{}?()p;^\n]/
+syntax region schemeString start=/\%(\\\)\@<!"/ skip=/\\[\\"]/ end=/"/ contains=schemeFormatDirective
+
+" This is a useful lax approximation:
+syntax match schemeNumber /[-#+.]\=[0-9][-#+/0-9a-f@i.boxesfdl]*/
+syntax match schemeError /[-#+0-9.][-#+/0-9a-f@i.boxesfdl]*[^-#+/0-9a-f@i.boxesfdl \t\[\]()";][^ \t\[\]()";]*/
+
+syntax match schemeBoolean /\v#[tf]/
+syntax match schemeError /\v#[tf][^ \t\[\]()";]\+/
+
+syntax match schemeCharacter /#\\./
+syntax match schemeError /#\\.[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\space/
+syntax match schemeError /#\\space[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\tab/
+syntax match schemeError /#\\tab[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\return/
+syntax match schemeError /#\\return[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\page/
+syntax match schemeError /#\\page[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\linefeed/
+syntax match schemeError /#\\linefeed[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\newline/
+syntax match schemeError /#\\newline[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\backspace/
+syntax match schemeError /#\\backspace[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\rubout/
+syntax match schemeError /#\\rubout[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\nul/
+syntax match schemeError /#\\nul[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\bel/
+syntax match schemeError /#\\bel[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\vt/
+syntax match schemeError /#\\vt[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\esc/
+syntax match schemeError /#\\esc[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\vtab/
+syntax match schemeError /#\\vtab[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\delete/
+syntax match schemeError /#\\delete[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\alarm/
+syntax match schemeError /#\\alarm[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\nel/
+syntax match schemeError /#\\nel[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\ls/
+syntax match schemeError /#\\ls[^ \t\[\]()";]\+/
+syntax match schemeCharacter /#\\x[0-9a-fA-Fa-f]\+/
+
+" Quoted and backquoted stuff
+
+syntax region schemeQuoted matchgroup=Delimiter start=/['`]/ end=/[ \t()\[\]";#]/me=e-1 contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeQuoted matchgroup=Delimiter start=/#['`]/ end=/[ \t()\[\]";#]/me=e-1 contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+
+syntax region schemeQuoted matchgroup=Delimiter start=/['`](/ end=/)/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeQuoted matchgroup=Delimiter start=/['`]#(/ end=/)/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeQuoted matchgroup=Delimiter start=/['`]#vfx(/ end=/)/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeQuoted matchgroup=Delimiter start=/['`]#vu8(/ end=/)/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeQuoted matchgroup=Delimiter start=/#['`](/ end=/)/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeQuoted matchgroup=Delimiter start=/#['`]#(/ end=/)/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeQuoted matchgroup=Delimiter start=/#['`]#vfx(/ end=/)/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeQuoted matchgroup=Delimiter start=/#['`]#vu8(/ end=/)/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+
+syntax region schemeUnquote matchgroup=Delimiter start=/,/ end=/[ \t\[\]()";]/me=e-1 contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeUnquote matchgroup=Delimiter start=/,@/ end=/[ \t\[\]()";]/me=e-1 contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeUnquote matchgroup=Delimiter start=/,(/ end=/)/ contains=ALLBUT,schemeDatumCommentForm
+syntax region schemeUnquote matchgroup=Delimiter start=/,@(/ end=/)/ contains=ALLBUT,schemeDatumCommentForm
+syntax region schemeUnquote matchgroup=Delimiter start=/,#(/ end=/)/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeUnquote matchgroup=Delimiter start=/,@#(/ end=/)/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeUnquote matchgroup=Delimiter start=/,\[/ end=/\]/ contains=ALLBUT,schemeDatumCommentForm
+syntax region schemeUnquote matchgroup=Delimiter start=/,@\[/ end=/\]/ contains=ALLBUT,schemeDatumCommentForm
+syntax region schemeUnquote matchgroup=Delimiter start=/,#\[/ end=/\]/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+syntax region schemeUnquote matchgroup=Delimiter start=/,@#\[/ end=/\]/ contains=ALLBUT,schemeString,schemeStruc,schemeKeyword,schemeVariable,schemeDatumCommentForm
+
+syntax match schemeDelimiter /\.[ \t\[\]()";]/me=e-1
+syntax match schemeDelimiter /\.$/
+
+" This keeps all other stuff unhighlighted, except *stuff* and <stuff>:
+
+syntax match schemeOther /[a-z!$%&*/:<=>?^_~+@-][-a-z!$%&*/:<=>?^_~0-9+.@]*/
+syntax match schemeError /[a-z!$%&*/:<=>?^_~+@-][-a-z!$%&*/:<=>?^_~0-9+.@]*[^-a-z!$%&*/:<=>?^_~0-9+.@ \t\[\]()";]\+[^ \t\[\]()";]*/
+
+syntax match schemeOther /\.\.\./
+syntax match schemeError /\.\.\.[^ \t\[\]()";]\+/
+
+syntax match schemeConstant /\*[-a-z!$%&*/:<=>?^_~0-9+.@]\+\*[ \t\[\]()";]/me=e-1
+syntax match schemeConstant /\*[-a-z!$%&*/:<=>?^_~0-9+.@]\+\*$/
+syntax match schemeError /\*[-a-z!$%&*/:<=>?^_~0-9+.@]*\*[^-a-z!$%&*/:<=>?^_~0-9+.@ \t\[\]()";]\+[^ \t\[\]()";]*/
+
+syntax match schemeConstant /<[-a-z!$%&*/:<=>?^_~0-9+.@]*>[ \t\[\]()";]/me=e-1
+syntax match schemeConstant /<[-a-z!$%&*/:<=>?^_~0-9+.@]*>$/
+syntax match schemeError /<[-a-z!$%&*/:<=>?^_~0-9+.@]*>[^-a-z!$%&*/:<=>?^_~0-9+.@ \t\[\]()";]\+[^ \t\[\]()";]*/
+
+syntax region schemeStruc matchgroup=Delimiter start=/(/ end=/)/ contains=ALLBUT,schemeDatumCommentForm
+syntax region schemeStruc matchgroup=Delimiter start=/#(/ end=/)/ contains=ALLBUT,schemeDatumCommentForm
+syntax region schemeStruc matchgroup=Delimiter start=/\[/ end=/\]/ contains=ALLBUT,schemeDatumCommentForm
+syntax region schemeStruc matchgroup=Delimiter start=/#\[/ end=/\]/ contains=ALLBUT,schemeDatumCommentForm
+
+syntax match schemeComment /[^#];.*$/
+syntax match schemeComment /^;.*$/
+syntax match schemeCommentNB /[^#];;* NB.*$/
+syntax match schemeCommentNB /^;;* NB.*$/
+syntax region schemeMultilineComment start=/#|/ end=/|#/ contains=schemeMultilineComment
+syntax region schemeDatumComment matchgroup=schemeComment start=/#;[ \t\n`']*/ end=/[ \t\n()\[\]";]/me=e-1
+syntax region schemeDatumComment matchgroup=schemeComment start=/#;[ \t\n`']*"/ skip=/\\[\\"]/ end=/"/
+syntax region schemeDatumComment matchgroup=schemeComment start=/#;[ \t\n`']*|/ skip=/\\[\\|]/ end=/|/
+syntax region schemeDatumComment matchgroup=schemeComment start=/#;[ \t\n`']*\(#\([usf]\d\+\)\?\)\?(/ end=/)/ contains=schemeDatumCommentForm
+syntax region schemeDatumComment matchgroup=schemeComment start=/#;[ \t\n`']*\(#\([usf]\d\+\)\?\)\?\[/ end=/\]/ contains=schemeDatumCommentForm
+syntax region schemeDatumCommentForm start=/(/ end=/)/ contained contains=schemeDatumCommentForm
+syntax region schemeDatumCommentForm start=/\[/ end=/\]/ contained contains=schemeDatumCommentForm
+
+syntax match schemeOther /[+-][ \t\[\]()";]/me=e-1
+syntax match schemeOther /[+-]$/
+
+syntax sync match matchPlace grouphere NONE /^[^ \t]/
+
+" Note: the following section is generated from a scheme script that processes
+" the Chez Scheme primdata.ss file to produce the following:
+syntax keyword schemeKeyword with-mutex with-interrupts-disabled with-implicit
+syntax keyword schemeKeyword untrace type-descriptor trace-let trace-lambda
+syntax keyword schemeKeyword trace-do trace-define-syntax trace-define
+syntax keyword schemeKeyword trace-case-lambda trace top-level-program time
+syntax keyword schemeKeyword syntax-rules scheme r5rs-syntax r5rs record-case
+syntax keyword schemeKeyword rename rec profile prefix predicate pariah
+syntax keyword schemeKeyword parameterize only module meta-cond meta
+syntax keyword schemeKeyword make-ftype-pointer library-requirements-options
+syntax keyword schemeKeyword library indirect-export include import-only import
+syntax keyword schemeKeyword implicit-exports ieee ftype-unlock!
+syntax keyword schemeKeyword ftype-spin-lock! ftype-set! ftype-ref ftype-&ref
+syntax keyword schemeKeyword ftype-sizeof ftype-pointer? ftype-locked-incr!
+syntax keyword schemeKeyword ftype-locked-decr! ftype-lock! ftype-init-lock!
+syntax keyword schemeKeyword ftype-guardian foreign-procedure foreign-callable
+syntax keyword schemeKeyword fluid-let-syntax fluid-let fasl-strip-options
+syntax keyword schemeKeyword extend-syntax expression-editor export
+syntax keyword schemeKeyword exclusive-cond except eval-when drop-prefix
+syntax keyword schemeKeyword define-values define-structure define-record
+syntax keyword schemeKeyword define-property define-ftype datum critical-section
+syntax keyword schemeKeyword constructor case annotation-options alias
+syntax keyword schemeKeyword add-prefix $system &source &format &continuation
+syntax keyword schemeKeyword $primitive unsyntax-splicing unsyntax quasisyntax
+syntax keyword schemeKeyword with-syntax syntax syntax-case
+syntax keyword schemeKeyword record-constructor-descriptor
+syntax keyword schemeKeyword record-type-descriptor parent-rtd nongenerative
+syntax keyword schemeKeyword opaque sealed protocol parent immutable mutable
+syntax keyword schemeKeyword fields define-record-type delay &i/o-port
+syntax keyword schemeKeyword &i/o-file-does-not-exist &i/o-file-already-exists
+syntax keyword schemeKeyword &i/o-file-is-read-only &i/o-file-protection
+syntax keyword schemeKeyword &i/o-filename &i/o-invalid-position &i/o-write
+syntax keyword schemeKeyword &i/o-read &i/o error-handling-mode &i/o-encoding
+syntax keyword schemeKeyword &i/o-decoding eol-style buffer-mode file-options
+syntax keyword schemeKeyword &undefined &syntax &lexical
+syntax keyword schemeKeyword &implementation-restriction &non-continuable &who
+syntax keyword schemeKeyword &irritants &assertion &violation &error &serious
+syntax keyword schemeKeyword &warning &message &condition define-condition-type
+syntax keyword schemeKeyword guard define-enumeration case-lambda do unless when
+syntax keyword schemeKeyword endianness let*-values let-values letrec*
+syntax keyword schemeKeyword identifier-syntax syntax-rules letrec-syntax
+syntax keyword schemeKeyword let-syntax unquote-splicing unquote quasiquote
+syntax keyword schemeKeyword begin letrec let* let or and case cond set! lambda
+syntax keyword schemeKeyword quote if define-syntax define assert ... _ else =>
+syntax keyword schemeKeyword &no-nans &no-infinities
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-unicode/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-syntax\-case/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-sorting/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-records\-inspection/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-records\-syntactic/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-records\-procedural/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-r5rs/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-programs/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-mutable\-strings/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-mutable\-pairs/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-lists/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-io\-simple/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-io\-ports/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-hashtables/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-files/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-exceptions/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-eval/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-enums/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-control/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-conditions/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-bytevectors/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-base/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-arithmetic\-flonums/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-arithmetic\-fixnums/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs\-arithmetic\-bitwise/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$rnrs/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$program/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$moi/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$module/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$library/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$import/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$foreign\-procedure/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$foreign\-callable/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$cost\-center/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$chezscheme\-csv7/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$case/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$\&recompile/
+syntax match schemeKeyword /\v(\#(2|3)?\%)?\$\&src/
+syntax keyword schemeVariable with-source-path with-output-to-string
+syntax keyword schemeVariable with-output-to-file with-input-from-string
+syntax keyword schemeVariable with-input-from-file with-cost-center weak-pair?
+syntax keyword schemeVariable weak-cons warningf warning void visit
+syntax keyword schemeVariable virtual-register-count virtual-register
+syntax keyword schemeVariable vector-set-fixnum! vector->immutable-vector
+syntax keyword schemeVariable vector-copy vector-cas! utf-16be-codec
+syntax keyword schemeVariable utf-16le-codec utf-16-codec unread-char
+syntax keyword schemeVariable unlock-object unget-char unget-u8 unbox
+syntax keyword schemeVariable truncate-port truncate-file transcript-on
+syntax keyword schemeVariable transcript-off transcript-cafe transcoder?
+syntax keyword schemeVariable top-level-value top-level-syntax? top-level-syntax
+syntax keyword schemeVariable top-level-mutable? top-level-bound?
+syntax keyword schemeVariable thread-condition? thread? textual-port-output-size
+syntax keyword schemeVariable textual-port-output-index
+syntax keyword schemeVariable textual-port-output-count
+syntax keyword schemeVariable textual-port-output-buffer textual-port-input-size
+syntax keyword schemeVariable textual-port-input-index textual-port-input-count
+syntax keyword schemeVariable textual-port-input-buffer tanh system
+syntax keyword schemeVariable syntax-object->datum syntax-error syntax->vector
+syntax keyword schemeVariable syntax->list syntax->annotation
+syntax keyword schemeVariable symbol-hashtable-update! symbol-hashtable-set!
+syntax keyword schemeVariable symbol-hashtable-ref symbol-hashtable-delete!
+syntax keyword schemeVariable symbol-hashtable-contains? symbol-hashtable-cell
+syntax keyword schemeVariable symbol-hashtable? substv! substv substring-fill!
+syntax keyword schemeVariable substq! substq subst! subst sub1 strip-fasl-file
+syntax keyword schemeVariable string-truncate! string->immutable-string
+syntax keyword schemeVariable string-copy! string-ci>? string-ci>=? string-ci=?
+syntax keyword schemeVariable string-ci<? string-ci<=? string>? string>=?
+syntax keyword schemeVariable string=? string<? string<=? string->number
+syntax keyword schemeVariable string->multibyte statistics standard-error-port
+syntax keyword schemeVariable standard-output-port standard-input-port sstats?
+syntax keyword schemeVariable sstats-real sstats-print sstats-gc-real
+syntax keyword schemeVariable sstats-gc-cpu sstats-gc-count sstats-gc-bytes
+syntax keyword schemeVariable sstats-difference sstats-cpu sstats-bytes
+syntax keyword schemeVariable source-object-sfd source-object-line
+syntax keyword schemeVariable source-object-efp source-object-column
+syntax keyword schemeVariable source-object-bfp source-object?
+syntax keyword schemeVariable source-file-descriptor-path
+syntax keyword schemeVariable source-file-descriptor-checksum
+syntax keyword schemeVariable source-file-descriptor? source-file-descriptor
+syntax keyword schemeVariable source-condition-form source-condition? sort! sort
+syntax keyword schemeVariable sleep sinh set-virtual-register!
+syntax keyword schemeVariable set-top-level-value! set-timer
+syntax keyword schemeVariable set-textual-port-output-size!
+syntax keyword schemeVariable set-textual-port-output-index!
+syntax keyword schemeVariable set-textual-port-output-buffer!
+syntax keyword schemeVariable set-textual-port-input-size!
+syntax keyword schemeVariable set-textual-port-input-index!
+syntax keyword schemeVariable set-textual-port-input-buffer! set-sstats-real!
+syntax keyword schemeVariable set-sstats-gc-real! set-sstats-gc-cpu!
+syntax keyword schemeVariable set-sstats-gc-count! set-sstats-gc-bytes!
+syntax keyword schemeVariable set-sstats-cpu! set-sstats-bytes!
+syntax keyword schemeVariable set-port-output-size! set-port-output-index!
+syntax keyword schemeVariable set-port-output-buffer! set-port-nonblocking!
+syntax keyword schemeVariable set-port-name! set-port-length!
+syntax keyword schemeVariable set-port-input-size! set-port-input-index!
+syntax keyword schemeVariable set-port-input-buffer! set-port-eof! set-port-bol!
+syntax keyword schemeVariable set-box! set-binary-port-output-size!
+syntax keyword schemeVariable set-binary-port-output-index!
+syntax keyword schemeVariable set-binary-port-output-buffer!
+syntax keyword schemeVariable set-binary-port-input-size!
+syntax keyword schemeVariable set-binary-port-input-index!
+syntax keyword schemeVariable set-binary-port-input-buffer! scheme-environment
+syntax keyword schemeVariable sc-expand s8-list->bytevector revisit reverse!
+syntax keyword schemeVariable reset-maximum-memory-bytes! reset-cost-center!
+syntax keyword schemeVariable reset rename-file remv! remq! remprop remove!
+syntax keyword schemeVariable remove-registry! remove-hash-table!
+syntax keyword schemeVariable remove-foreign-entry register-signal-handler
+syntax keyword schemeVariable record-writer record-type-hash-procedure
+syntax keyword schemeVariable record-type-equal-procedure record-reader
+syntax keyword schemeVariable record-hash-procedure record-equal-procedure
+syntax keyword schemeVariable record-constructor-descriptor? record-constructor
+syntax keyword schemeVariable record? real-time read-token ratnum? random
+syntax keyword schemeVariable profile-query-weight putenv putprop
+syntax keyword schemeVariable put-string-some put-registry! put-hash-table!
+syntax keyword schemeVariable put-bytevector-some property-list
+syntax keyword schemeVariable profile-release-counters profile-dump-html
+syntax keyword schemeVariable profile-dump-list profile-dump-data profile-dump
+syntax keyword schemeVariable profile-clear profile-clear-database process
+syntax keyword schemeVariable procedure-arity-mask printf pretty-print
+syntax keyword schemeVariable pretty-format pretty-file port-output-size
+syntax keyword schemeVariable port-output-index port-output-full?
+syntax keyword schemeVariable port-output-count port-output-buffer
+syntax keyword schemeVariable port-nonblocking? port-name port-length
+syntax keyword schemeVariable port-input-size port-input-index port-input-empty?
+syntax keyword schemeVariable port-input-count port-input-buffer
+syntax keyword schemeVariable port-has-set-port-nonblocking!?
+syntax keyword schemeVariable port-has-set-port-length!?
+syntax keyword schemeVariable port-has-port-nonblocking?? port-has-port-length?
+syntax keyword schemeVariable port-handler port-file-descriptor port-closed?
+syntax keyword schemeVariable port-bol? path-root path-rest path-parent
+syntax keyword schemeVariable path-last path-first path-extension path-absolute?
+syntax keyword schemeVariable ormap open-source-file open-process-ports
+syntax keyword schemeVariable open-output-string open-output-file
+syntax keyword schemeVariable open-input-string open-input-output-file
+syntax keyword schemeVariable open-input-file open-fd-output-port
+syntax keyword schemeVariable open-fd-input/output-port open-fd-input-port
+syntax keyword schemeVariable oblist object-counts number->string nonpositive?
+syntax keyword schemeVariable nonnegative? new-cafe mutex? mutex-release
+syntax keyword schemeVariable mutex-name mutex-acquire mutable-vector?
+syntax keyword schemeVariable mutable-bytevector? mutable-fxvector?
+syntax keyword schemeVariable mutable-string? mutable-box? multibyte->string
+syntax keyword schemeVariable mkdir merge! merge maybe-compile-program
+syntax keyword schemeVariable maybe-compile-library maybe-compile-file
+syntax keyword schemeVariable maximum-memory-bytes mark-port-closed!
+syntax keyword schemeVariable make-weak-eqv-hashtable make-weak-eq-hashtable
+syntax keyword schemeVariable make-thread-parameter make-sstats
+syntax keyword schemeVariable make-source-object make-source-file-descriptor
+syntax keyword schemeVariable make-source-condition make-record-type
+syntax keyword schemeVariable make-parameter make-output-port make-object-finder
+syntax keyword schemeVariable make-mutex make-list make-input/output-port
+syntax keyword schemeVariable make-input-port make-hash-table make-guardian
+syntax keyword schemeVariable make-fxvector make-format-condition make-engine
+syntax keyword schemeVariable make-ephemeron-eqv-hashtable
+syntax keyword schemeVariable make-ephemeron-eq-hashtable make-cost-center
+syntax keyword schemeVariable make-continuation-condition make-condition
+syntax keyword schemeVariable make-compile-time-value make-boot-header
+syntax keyword schemeVariable make-boot-file make-annotation magnitude-squared
+syntax keyword schemeVariable logxor logtest logor lognot logior logbit1 logbit0
+syntax keyword schemeVariable logbit? logand locked-object? lock-object
+syntax keyword schemeVariable locate-source-object-source locate-source
+syntax keyword schemeVariable load-shared-object load-program profile-load-data
+syntax keyword schemeVariable load-library load-compiled-from-port load
+syntax keyword schemeVariable literal-identifier=? list-head list-copy
+syntax keyword schemeVariable list->fxvector list* last-pair isqrt iota
+syntax keyword schemeVariable interpret interactive? integer-length
+syntax keyword schemeVariable inspect/object inspect input-port-ready?
+syntax keyword schemeVariable initial-bytes-allocated immutable-bytevector?
+syntax keyword schemeVariable immutable-fxvector? immutable-vector?
+syntax keyword schemeVariable immutable-box? immutable-string? ieee-environment
+syntax keyword schemeVariable iconv-codec hashtable-weak? hashtable-values
+syntax keyword schemeVariable hashtable-keys hashtable-entries hashtable-cells
+syntax keyword schemeVariable hashtable-cell hash-table-map hash-table-for-each
+syntax keyword schemeVariable hashtable-ephemeron? hash-table? getprop getenv
+syntax keyword schemeVariable get-string-some! get-string-some get-registry
+syntax keyword schemeVariable get-output-string get-mode get-hash-table
+syntax keyword schemeVariable get-datum/annotations get-bytevector-some!
+syntax keyword schemeVariable gensym->unique-string gensym? gensym fxvector?
+syntax keyword schemeVariable fxvector-set! fxvector-ref fxvector-length
+syntax keyword schemeVariable fxvector->immutable-fxvector fxvector-fill!
+syntax keyword schemeVariable fxvector-copy fxvector->list fxvector fxsrl fxsra
+syntax keyword schemeVariable fxsll fxremainder fxquotient fxnonpositive?
+syntax keyword schemeVariable fxnonnegative? fxmodulo fxlogxor fxlogtest fxlogor
+syntax keyword schemeVariable fxlognot fxlogior fxlogbit1 fxlogbit0 fxlogbit?
+syntax keyword schemeVariable fxlogand fxabs fx>= fx> fx= fx<= fx< fx1- fx1+ fx/
+syntax keyword schemeVariable fx- fx+ fx* ftype-pointer->sexpr
+syntax keyword schemeVariable ftype-pointer-null? ftype-pointer-ftype
+syntax keyword schemeVariable ftype-pointer-address ftype-pointer=? fresh-line
+syntax keyword schemeVariable fprintf format-condition? format fork-thread
+syntax keyword schemeVariable foreign-sizeof foreign-set! foreign-ref
+syntax keyword schemeVariable foreign-free foreign-alloc
+syntax keyword schemeVariable foreign-callable-code-object
+syntax keyword schemeVariable foreign-callable-entry-point foreign-address-name
+syntax keyword schemeVariable foreign-entry foreign-entry? flush-output-port
+syntax keyword schemeVariable fl>= fl> fl<= fl< fl= flnonnegative?
+syntax keyword schemeVariable flnonpositive? flonum->fixnum fl-make-rectangular
+syntax keyword schemeVariable fllp file-symbolic-link? file-regular?
+syntax keyword schemeVariable port-file-compressed! file-port? file-position
+syntax keyword schemeVariable file-modification-time file-length file-exists?
+syntax keyword schemeVariable file-directory? file-change-time file-access-time
+syntax keyword schemeVariable fasl-write fasl-read fasl-file expt-mod
+syntax keyword schemeVariable expand/optimize expand exit eval
+syntax keyword schemeVariable eq-hashtable-weak? eq-hashtable-update!
+syntax keyword schemeVariable eq-hashtable-set! eq-hashtable-ref
+syntax keyword schemeVariable eq-hashtable-ephemeron? eq-hashtable-delete!
+syntax keyword schemeVariable eq-hashtable-contains? eq-hashtable-cell
+syntax keyword schemeVariable eq-hashtable? errorf ephemeron-pair?
+syntax keyword schemeVariable ephemeron-cons environment-symbols
+syntax keyword schemeVariable environment-mutable? environment? enum-set?
+syntax keyword schemeVariable enumerate engine-return engine-block
+syntax keyword schemeVariable enable-interrupts dynamic-wind display-string
+syntax keyword schemeVariable display-statistics display-condition
+syntax keyword schemeVariable disable-interrupts directory-separator?
+syntax keyword schemeVariable directory-list delete-file delete-directory
+syntax keyword schemeVariable define-top-level-value define-top-level-syntax
+syntax keyword schemeVariable default-prompt-and-read default-exception-handler
+syntax keyword schemeVariable decode-float debug-condition debug
+syntax keyword schemeVariable datum->syntax-object date-and-time
+syntax keyword schemeVariable current-memory-bytes create-exception-state
+syntax keyword schemeVariable cpu-time cost-center-time
+syntax keyword schemeVariable cost-center-instruction-count
+syntax keyword schemeVariable cost-center-allocation-count cost-center? cosh
+syntax keyword schemeVariable copy-time copy-environment continuation-condition?
+syntax keyword schemeVariable conjugate condition-wait condition-signal
+syntax keyword schemeVariable condition-name condition-continuation
+syntax keyword schemeVariable condition-broadcast compute-size
+syntax keyword schemeVariable compute-composition compile-whole-library
+syntax keyword schemeVariable compile-whole-program compile-to-port
+syntax keyword schemeVariable compile-to-file compile-time-value-value
+syntax keyword schemeVariable compile-time-value? compile-script compile-program
+syntax keyword schemeVariable compile-port compile-library compile-file compile
+syntax keyword schemeVariable collections collect-rendezvous collect
+syntax keyword schemeVariable clear-output-port clear-input-port chmod
+syntax keyword schemeVariable char-ready? char-name char-ci>? char-ci>=?
+syntax keyword schemeVariable char-ci=? char-ci<? char-ci<=? char- char>?
+syntax keyword schemeVariable char>=? char=? char<? char<=? cflonum?
+syntax keyword schemeVariable cfl-real-part cfl-magnitude-squared cfl-imag-part
+syntax keyword schemeVariable cfl-conjugate cfl= cfl/ cfl- cfl+ cfl*
+syntax keyword schemeVariable call-with-output-file call-with-input-file
+syntax keyword schemeVariable call/1cc bytevector-uncompress bytevector-compress
+syntax keyword schemeVariable bytevector-u56-set! bytevector-u56-ref
+syntax keyword schemeVariable bytevector-u48-set! bytevector-u48-ref
+syntax keyword schemeVariable bytevector-u40-set! bytevector-u40-ref
+syntax keyword schemeVariable bytevector-u24-set! bytevector-u24-ref
+syntax keyword schemeVariable bytevector-s56-set! bytevector-s56-ref
+syntax keyword schemeVariable bytevector-s48-set! bytevector-s48-ref
+syntax keyword schemeVariable bytevector-s40-set! bytevector-s40-ref
+syntax keyword schemeVariable bytevector-s24-set! bytevector-s24-ref
+syntax keyword schemeVariable bytevector->immutable-bytevector
+syntax keyword schemeVariable bytevector-truncate! bytevector->s8-list
+syntax keyword schemeVariable bytevector bytes-deallocated bytes-allocated
+syntax keyword schemeVariable bwp-object? break box-immutable box-cas! box? box
+syntax keyword schemeVariable block-write block-read binary-port-output-size
+syntax keyword schemeVariable binary-port-output-index binary-port-output-count
+syntax keyword schemeVariable binary-port-output-buffer binary-port-input-size
+syntax keyword schemeVariable binary-port-input-index binary-port-input-count
+syntax keyword schemeVariable binary-port-input-buffer bignum? atom? atanh asinh
+syntax keyword schemeVariable assertion-violationf ash apropos-list apropos
+syntax keyword schemeVariable append! annotation-stripped annotation-source
+syntax keyword schemeVariable annotation-option-set annotation-expression
+syntax keyword schemeVariable annotation? andmap add1 acosh abort \x31;- \x31;+ \x2D;1+ >= >
+syntax keyword schemeVariable = <= < waiter-write waiter-prompt-and-read
+syntax keyword schemeVariable waiter-prompt-string undefined-variable-warnings
+syntax keyword schemeVariable trace-print trace-output-port
+syntax keyword schemeVariable timer-interrupt-handler suppress-greeting
+syntax keyword schemeVariable subset-mode source-directories scheme-script
+syntax keyword schemeVariable scheme-program scheme-start run-cp0 reset-handler
+syntax keyword schemeVariable require-nongenerative-clause
+syntax keyword schemeVariable release-minimum-generation random-seed
+syntax keyword schemeVariable profile-line-number-color profile-palette
+syntax keyword schemeVariable print-vector-length print-unicode print-record
+syntax keyword schemeVariable print-radix print-precision print-level
+syntax keyword schemeVariable print-length print-graph print-gensym
+syntax keyword schemeVariable print-extended-identifiers print-char-name
+syntax keyword schemeVariable print-brackets pretty-standard-indent
+syntax keyword schemeVariable pretty-one-line-limit pretty-maximum-lines
+syntax keyword schemeVariable pretty-line-length pretty-initial-indent
+syntax keyword schemeVariable optimize-level library-version
+syntax keyword schemeVariable library-search-handler library-requirements
+syntax keyword schemeVariable library-list library-object-filename
+syntax keyword schemeVariable library-extensions library-exports
+syntax keyword schemeVariable library-directories keyboard-interrupt-handler
+syntax keyword schemeVariable internal-defines-as-letrec*
+syntax keyword schemeVariable interaction-environment import-notify
+syntax keyword schemeVariable heap-reserve-ratio gensym-prefix gensym-count
+syntax keyword schemeVariable generate-wpo-files generate-profile-forms
+syntax keyword schemeVariable generate-procedure-source-information
+syntax keyword schemeVariable generate-interrupt-trap
+syntax keyword schemeVariable generate-instruction-counts
+syntax keyword schemeVariable generate-inspector-information
+syntax keyword schemeVariable generate-allocation-counts file-buffer-size
+syntax keyword schemeVariable exit-handler expand/optimize-output expand-output
+syntax keyword schemeVariable eval-syntax-expanders-when enable-object-counts
+syntax keyword schemeVariable enable-cross-library-optimization
+syntax keyword schemeVariable default-record-hash-procedure
+syntax keyword schemeVariable default-record-equal-procedure
+syntax keyword schemeVariable default-library-search-handler debug-on-exception
+syntax keyword schemeVariable debug-level custom-port-buffer-size
+syntax keyword schemeVariable current-transcoder current-output-port
+syntax keyword schemeVariable current-make-source-object
+syntax keyword schemeVariable current-locate-source-object-source
+syntax keyword schemeVariable current-input-port current-expand
+syntax keyword schemeVariable current-exception-state current-eval
+syntax keyword schemeVariable current-error-port current-directory
+syntax keyword schemeVariable cp0-score-limit cp0-outer-unroll-limit
+syntax keyword schemeVariable cp0-effort-limit console-output-port
+syntax keyword schemeVariable console-input-port console-error-port
+syntax keyword schemeVariable compress-level compress-format
+syntax keyword schemeVariable compile-program-handler compile-profile
+syntax keyword schemeVariable compile-library-handler compile-imported-libraries
+syntax keyword schemeVariable compile-interpret-simple compile-file-message
+syntax keyword schemeVariable compile-compressed commonization-level
+syntax keyword schemeVariable command-line-arguments command-line
+syntax keyword schemeVariable collect-trip-bytes collect-request-handler
+syntax keyword schemeVariable collect-notify collect-maximum-generation
+syntax keyword schemeVariable collect-generation-radix cd case-sensitive
+syntax keyword schemeVariable break-handler base-exception-handler abort-handler
+syntax keyword schemeVariable threaded? scheme-version-number scheme-version
+syntax keyword schemeVariable petite? most-positive-fixnum most-negative-fixnum
+syntax keyword schemeVariable machine-type get-thread-id get-process-id
+syntax keyword schemeVariable directory-separator time-utc->date time-type
+syntax keyword schemeVariable time-second time-nanosecond time-difference!
+syntax keyword schemeVariable time-difference time>? time>=? time<=? time<?
+syntax keyword schemeVariable time=? time? subtract-duration! subtract-duration
+syntax keyword schemeVariable set-time-type! set-time-second!
+syntax keyword schemeVariable set-time-nanosecond! make-time make-date
+syntax keyword schemeVariable date->time-utc date-zone-name date-zone-offset
+syntax keyword schemeVariable date-year date-dst? date-year-day date-week-day
+syntax keyword schemeVariable date-second date-nanosecond date-month date-minute
+syntax keyword schemeVariable date-hour date? date-day current-time current-date
+syntax keyword schemeVariable add-duration! add-duration record-type-symbol
+syntax keyword schemeVariable record-type-name record-type-field-names
+syntax keyword schemeVariable record-type-field-decls record-type-descriptor
+syntax keyword schemeVariable record-field-mutator record-field-mutable?
+syntax keyword schemeVariable record-field-accessor record-field-accessible?
+syntax keyword schemeVariable string-normalize-nfkc string-normalize-nfc
+syntax keyword schemeVariable string-normalize-nfkd string-normalize-nfd
+syntax keyword schemeVariable string-ci>? string-ci>=? string-ci=? string-ci<?
+syntax keyword schemeVariable string-ci<=? string-foldcase string-titlecase
+syntax keyword schemeVariable string-downcase string-upcase
+syntax keyword schemeVariable char-general-category char-title-case?
+syntax keyword schemeVariable char-lower-case? char-upper-case? char-whitespace?
+syntax keyword schemeVariable char-numeric? char-alphabetic? char-ci>?
+syntax keyword schemeVariable char-ci>=? char-ci=? char-ci<? char-ci<=?
+syntax keyword schemeVariable char-foldcase char-titlecase char-downcase
+syntax keyword schemeVariable char-upcase syntax-violation generate-temporaries
+syntax keyword schemeVariable datum->syntax syntax->datum free-identifier=?
+syntax keyword schemeVariable bound-identifier=? identifier?
+syntax keyword schemeVariable make-variable-transformer vector-sort! vector-sort
+syntax keyword schemeVariable list-sort record-field-mutable?
+syntax keyword schemeVariable record-type-field-names record-type-opaque?
+syntax keyword schemeVariable record-type-sealed? record-type-generative?
+syntax keyword schemeVariable record-type-uid record-type-parent
+syntax keyword schemeVariable record-type-name record-rtd record? record-mutator
+syntax keyword schemeVariable record-accessor record-predicate
+syntax keyword schemeVariable record-constructor
+syntax keyword schemeVariable make-record-constructor-descriptor
+syntax keyword schemeVariable record-type-descriptor?
+syntax keyword schemeVariable make-record-type-descriptor
+syntax keyword schemeVariable scheme-report-environment null-environment force
+syntax keyword schemeVariable modulo remainder quotient inexact->exact
+syntax keyword schemeVariable exact->inexact exit command-line string-fill!
+syntax keyword schemeVariable string-set! set-cdr! set-car! cons* assq assv
+syntax keyword schemeVariable assoc assp memq memv member memp remq remv remove
+syntax keyword schemeVariable remp fold-right fold-left partition filter exists
+syntax keyword schemeVariable for-all find write display newline write-char read
+syntax keyword schemeVariable peek-char read-char close-output-port
+syntax keyword schemeVariable close-input-port open-output-file open-input-file
+syntax keyword schemeVariable with-output-to-file with-input-from-file
+syntax keyword schemeVariable call-with-output-file call-with-input-file
+syntax keyword schemeVariable i/o-error-port i/o-port-error? make-i/o-port-error
+syntax keyword schemeVariable i/o-file-does-not-exist-error?
+syntax keyword schemeVariable make-i/o-file-does-not-exist-error
+syntax keyword schemeVariable i/o-file-already-exists-error?
+syntax keyword schemeVariable make-i/o-file-already-exists-error
+syntax keyword schemeVariable i/o-file-is-read-only-error?
+syntax keyword schemeVariable make-i/o-file-is-read-only-error
+syntax keyword schemeVariable i/o-file-protection-error?
+syntax keyword schemeVariable make-i/o-file-protection-error i/o-error-filename
+syntax keyword schemeVariable i/o-filename-error? make-i/o-filename-error
+syntax keyword schemeVariable i/o-error-position i/o-invalid-position-error?
+syntax keyword schemeVariable make-i/o-invalid-position-error i/o-write-error?
+syntax keyword schemeVariable make-i/o-write-error i/o-read-error?
+syntax keyword schemeVariable make-i/o-read-error i/o-error? make-i/o-error
+syntax keyword schemeVariable make-custom-textual-input/output-port
+syntax keyword schemeVariable make-custom-binary-input/output-port
+syntax keyword schemeVariable open-file-input/output-port put-datum put-string
+syntax keyword schemeVariable put-char put-bytevector put-u8
+syntax keyword schemeVariable make-custom-textual-output-port
+syntax keyword schemeVariable make-custom-binary-output-port standard-error-port
+syntax keyword schemeVariable standard-output-port call-with-string-output-port
+syntax keyword schemeVariable open-string-output-port
+syntax keyword schemeVariable call-with-bytevector-output-port
+syntax keyword schemeVariable open-bytevector-output-port open-file-output-port
+syntax keyword schemeVariable output-port-buffer-mode flush-output-port
+syntax keyword schemeVariable get-datum get-line get-string-all get-string-n!
+syntax keyword schemeVariable get-string-n lookahead-char get-char
+syntax keyword schemeVariable get-bytevector-all get-bytevector-some
+syntax keyword schemeVariable get-bytevector-n! get-bytevector-n lookahead-u8
+syntax keyword schemeVariable get-u8 make-custom-textual-input-port
+syntax keyword schemeVariable make-custom-binary-input-port standard-input-port
+syntax keyword schemeVariable open-string-input-port open-bytevector-input-port
+syntax keyword schemeVariable open-file-input-port port-eof? call-with-port
+syntax keyword schemeVariable close-port set-port-position!
+syntax keyword schemeVariable port-has-set-port-position!? port-position
+syntax keyword schemeVariable port-has-port-position? transcoded-port
+syntax keyword schemeVariable binary-port? textual-port? port-transcoder port?
+syntax keyword schemeVariable string->bytevector bytevector->string
+syntax keyword schemeVariable transcoder-error-handling-mode
+syntax keyword schemeVariable transcoder-eol-style transcoder-codec
+syntax keyword schemeVariable native-transcoder make-transcoder
+syntax keyword schemeVariable i/o-encoding-error-char i/o-encoding-error?
+syntax keyword schemeVariable make-i/o-encoding-error i/o-decoding-error?
+syntax keyword schemeVariable make-i/o-decoding-error native-eol-style
+syntax keyword schemeVariable utf-16-codec utf-8-codec latin-1-codec
+syntax keyword schemeVariable buffer-mode? current-error-port
+syntax keyword schemeVariable current-output-port output-port?
+syntax keyword schemeVariable current-input-port input-port? eof-object?
+syntax keyword schemeVariable eof-object symbol-hash string-ci-hash string-hash
+syntax keyword schemeVariable equal-hash hashtable-mutable?
+syntax keyword schemeVariable hashtable-hash-function
+syntax keyword schemeVariable hashtable-equivalence-function hashtable-entries
+syntax keyword schemeVariable hashtable-keys hashtable-clear! hashtable-copy
+syntax keyword schemeVariable hashtable-update! hashtable-contains?
+syntax keyword schemeVariable hashtable-delete! hashtable-set! hashtable-ref
+syntax keyword schemeVariable hashtable-size hashtable? make-hashtable
+syntax keyword schemeVariable make-eqv-hashtable make-eq-hashtable delete-file
+syntax keyword schemeVariable file-exists? undefined-violation?
+syntax keyword schemeVariable make-undefined-violation syntax-violation-subform
+syntax keyword schemeVariable syntax-violation-form syntax-violation?
+syntax keyword schemeVariable make-syntax-violation lexical-violation?
+syntax keyword schemeVariable make-lexical-violation
+syntax keyword schemeVariable implementation-restriction-violation?
+syntax keyword schemeVariable make-implementation-restriction-violation
+syntax keyword schemeVariable non-continuable-violation?
+syntax keyword schemeVariable make-non-continuable-violation condition-who
+syntax keyword schemeVariable who-condition? make-who-condition
+syntax keyword schemeVariable condition-irritants irritants-condition?
+syntax keyword schemeVariable make-irritants-condition assertion-violation?
+syntax keyword schemeVariable make-assertion-violation violation? make-violation
+syntax keyword schemeVariable error? make-error serious-condition?
+syntax keyword schemeVariable make-serious-condition warning? make-warning
+syntax keyword schemeVariable condition-message message-condition?
+syntax keyword schemeVariable make-message-condition condition-accessor
+syntax keyword schemeVariable condition-predicate condition? simple-conditions
+syntax keyword schemeVariable condition raise-continuable raise
+syntax keyword schemeVariable with-exception-handler environment eval
+syntax keyword schemeVariable enum-set-projection enum-set-complement
+syntax keyword schemeVariable enum-set-difference enum-set-intersection
+syntax keyword schemeVariable enum-set-union enum-set=? enum-set-subset?
+syntax keyword schemeVariable enum-set-member? enum-set->list
+syntax keyword schemeVariable enum-set-constructor enum-set-indexer
+syntax keyword schemeVariable enum-set-universe make-enumeration utf32->string
+syntax keyword schemeVariable utf16->string utf8->string string->utf32
+syntax keyword schemeVariable string->utf16 string->utf8
+syntax keyword schemeVariable bytevector-ieee-double-native-set!
+syntax keyword schemeVariable bytevector-ieee-double-set!
+syntax keyword schemeVariable bytevector-ieee-single-native-set!
+syntax keyword schemeVariable bytevector-ieee-single-set!
+syntax keyword schemeVariable bytevector-ieee-double-native-ref
+syntax keyword schemeVariable bytevector-ieee-double-ref
+syntax keyword schemeVariable bytevector-ieee-single-native-ref
+syntax keyword schemeVariable bytevector-ieee-single-ref
+syntax keyword schemeVariable bytevector-s64-native-set!
+syntax keyword schemeVariable bytevector-u64-native-set! bytevector-s64-set!
+syntax keyword schemeVariable bytevector-u64-set! bytevector-s64-native-ref
+syntax keyword schemeVariable bytevector-u64-native-ref bytevector-s64-ref
+syntax keyword schemeVariable bytevector-u64-ref bytevector-s32-native-set!
+syntax keyword schemeVariable bytevector-u32-native-set! bytevector-s32-set!
+syntax keyword schemeVariable bytevector-u32-set! bytevector-s32-native-ref
+syntax keyword schemeVariable bytevector-u32-native-ref bytevector-s32-ref
+syntax keyword schemeVariable bytevector-u32-ref bytevector-s16-native-set!
+syntax keyword schemeVariable bytevector-u16-native-set! bytevector-s16-set!
+syntax keyword schemeVariable bytevector-u16-set! bytevector-s16-native-ref
+syntax keyword schemeVariable bytevector-u16-native-ref bytevector-s16-ref
+syntax keyword schemeVariable bytevector-u16-ref sint-list->bytevector
+syntax keyword schemeVariable uint-list->bytevector bytevector->sint-list
+syntax keyword schemeVariable bytevector->uint-list bytevector-sint-set!
+syntax keyword schemeVariable bytevector-uint-set! bytevector-sint-ref
+syntax keyword schemeVariable bytevector-uint-ref u8-list->bytevector
+syntax keyword schemeVariable bytevector->u8-list bytevector-s8-set!
+syntax keyword schemeVariable bytevector-u8-set! bytevector-s8-ref
+syntax keyword schemeVariable bytevector-u8-ref bytevector-copy bytevector-copy!
+syntax keyword schemeVariable bytevector-fill! bytevector=? bytevector-length
+syntax keyword schemeVariable make-bytevector bytevector? native-endianness
+syntax keyword schemeVariable dynamic-wind call-with-values values call/cc
+syntax keyword schemeVariable call-with-current-continuation apply
+syntax keyword schemeVariable assertion-violation error vector-for-each
+syntax keyword schemeVariable vector-map vector-fill! list->vector vector->list
+syntax keyword schemeVariable vector-set! vector-ref vector-length vector
+syntax keyword schemeVariable make-vector vector? string-copy string-for-each
+syntax keyword schemeVariable list->string string->list string-append substring
+syntax keyword schemeVariable string>? string>=? string=? string<? string<=?
+syntax keyword schemeVariable string-ref string-length string make-string
+syntax keyword schemeVariable string? char>? char>=? char=? char<? char<=?
+syntax keyword schemeVariable integer->char char->integer char? string->symbol
+syntax keyword schemeVariable symbol=? symbol->string symbol? for-each map
+syntax keyword schemeVariable list-ref list-tail reverse append length list
+syntax keyword schemeVariable list? null? cddddr cadddr cdaddr caaddr cddadr
+syntax keyword schemeVariable cadadr cdaadr caaadr cdddar caddar cdadar caadar
+syntax keyword schemeVariable cddaar cadaar cdaaar caaaar cdddr caddr cdadr
+syntax keyword schemeVariable caadr cddar cadar cdaar caaar cddr cadr cdar caar
+syntax keyword schemeVariable cdr car cons pair? boolean=? boolean? not
+syntax keyword schemeVariable string->number number->string angle magnitude
+syntax keyword schemeVariable imag-part real-part make-polar make-rectangular
+syntax keyword schemeVariable expt exact-integer-sqrt sqrt atan acos asin tan
+syntax keyword schemeVariable cos sin log exp rationalize round truncate ceiling
+syntax keyword schemeVariable floor denominator numerator lcm gcd mod0 div0
+syntax keyword schemeVariable div0-and-mod0 mod div div-and-mod abs / - * + min
+syntax keyword schemeVariable max nan? infinite? finite? even? odd? negative?
+syntax keyword schemeVariable positive? zero? >= > = <= < exact inexact inexact?
+syntax keyword schemeVariable exact? integer-valued? rational-valued?
+syntax keyword schemeVariable real-valued? integer? rational? real? complex?
+syntax keyword schemeVariable number? procedure? equal? eq? eqv? fixnum->flonum
+syntax keyword schemeVariable no-nans-violation? make-no-nans-violation
+syntax keyword schemeVariable no-infinities-violation?
+syntax keyword schemeVariable make-no-infinities-violation flexpt flsqrt flatan
+syntax keyword schemeVariable flacos flasin fltan flcos flsin fllog flexp
+syntax keyword schemeVariable flround fltruncate flceiling flfloor fldenominator
+syntax keyword schemeVariable flnumerator flmod0 fldiv0 fldiv0-and-mod0 flmod
+syntax keyword schemeVariable fldiv fldiv-and-mod flabs fl/ fl- fl+ fl* flmin
+syntax keyword schemeVariable flmax flnan? flinfinite? flfinite? fleven? flodd?
+syntax keyword schemeVariable flnegative? flpositive? flzero? flinteger? fl>=?
+syntax keyword schemeVariable fl>? fl<=? fl<? fl=? real->flonum flonum?
+syntax keyword schemeVariable fxreverse-bit-field fxrotate-bit-field
+syntax keyword schemeVariable fxarithmetic-shift-right fxarithmetic-shift-left
+syntax keyword schemeVariable fxarithmetic-shift fxcopy-bit-field fxbit-field
+syntax keyword schemeVariable fxcopy-bit fxbit-set? fxfirst-bit-set fxlength
+syntax keyword schemeVariable fxbit-count fxif fxxor fxior fxand fxnot fx*/carry
+syntax keyword schemeVariable fx-/carry fx+/carry fxmod0 fxdiv0 fxdiv0-and-mod0
+syntax keyword schemeVariable fxmod fxdiv fxdiv-and-mod fx- fx+ fx* fxmin fxmax
+syntax keyword schemeVariable fxodd? fxeven? fxpositive? fxnegative? fxzero?
+syntax keyword schemeVariable fx>=? fx>? fx=? fx<=? fx<? greatest-fixnum
+syntax keyword schemeVariable least-fixnum fixnum-width fixnum?
+syntax keyword schemeVariable bitwise-reverse-bit-field bitwise-rotate-bit-field
+syntax keyword schemeVariable bitwise-arithmetic-shift-right
+syntax keyword schemeVariable bitwise-arithmetic-shift-left
+syntax keyword schemeVariable bitwise-arithmetic-shift bitwise-copy-bit-field
+syntax keyword schemeVariable bitwise-bit-field bitwise-copy-bit
+syntax keyword schemeVariable bitwise-bit-set? bitwise-first-bit-set
+syntax keyword schemeVariable bitwise-length bitwise-bit-count bitwise-if
+syntax keyword schemeVariable bitwise-xor bitwise-ior bitwise-and bitwise-not
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$tc\-mutex/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$symbol\-ht\-rtd/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$session\-key/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$scheme\-version/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$nuate/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$interrupt/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$heap\-reserve\-ratio/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$eq\-ht\-rtd/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$console\-output\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$console\-input\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$console\-error\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$compiler\-is\-loaded\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$collect\-request\-pending/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$collect\-cond/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$c\-bufsiz/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$active\-threads/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$target\-machine/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$sfd/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$suppress\-primitive\-inlining/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$optimize\-closures/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fasl\-target/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$expeditor/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$expeditor\-history\-file/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$enable\-pass\-timing/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$enable\-expeditor/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$enable\-check\-prelex\-flags/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$enable\-check\-heap/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$current\-mso/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$cp0\-polyvariant/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$cp0\-inner\-unroll\-limit/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$compile\-profile/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$cafe/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$block\-counter/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$library\-requirements\-options/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$file\-options/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fasl\-strip\-options/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$annotation\-options/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$xscript\-port\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$write\-pretty\-quick/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$with\-fasl\-target/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$visit\-library/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$visit/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$verify\-ftype\-pointer/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$verify\-ftype\-address/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$vector\-set\-immutable\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$vector\-set\!\-check\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$vector\-ref\-check\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$unwrap\-ftype\-pointer/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$untrace/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$undefined\-violation/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$uncprep/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$unbound\-object/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$unbound\-object\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$trans\-make\-ftype\-pointer/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$trans\-ftype\-sizeof/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$trans\-ftype\-set\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$trans\-ftype\-ref/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$trans\-ftype\-\&ref/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$trans\-ftype\-pointer\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$trans\-ftype\-locked\-op\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$trans\-ftype\-guardian/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$transformer\-\>binding/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$trans\-define\-ftype/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$track\-static\-closure\-counts/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$track\-dynamic\-closure\-counts/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$trace/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$trace\-closure/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$top\-level\-value/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$top\-level\-bound\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$tlc\-next/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$tlc\-keyval/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$tlc\-ht/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$tlc\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$thread\-tc/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$thread\-list/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$tc/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$tc\-field/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$system\-property\-list/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$system\-procedure\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$system\-library\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$system\-environment/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$system\-code\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$syntax\-top\-level\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$syntax\-\>src/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$syntax\-match\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$syntax\-dispatch/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$symbol\-type/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$symbol\-property\-list/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$symbol\-name/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$symbol\-hash/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$swap\-object\-ref/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$subsequent\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$str\-\>num/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$string\-set\-immutable\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$string\-set\!\-check\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$string\-ref\-check\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$string\-char\-foldcase/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$sremprop/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$src\-condition\-start/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$src\-condition\-src/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$src\-condition\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$sputprop/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$split\-continuation/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$spaces/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$source\-warning/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$source\-violation/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$source\-file\-descriptor/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$signal\-interrupt\-handler/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$show\-allocation/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$sgetprop/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-top\-level\-value\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-tlc\-next\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-timer/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-thread\-parameter\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-system\-property\-list\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-symbol\-property\-list\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-symbol\-name\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-symbol\-hash\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-port\-info\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-port\-flags\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-collect\-trip\-bytes/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-code\-word\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-code\-quad\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-code\-long\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$set\-code\-byte\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$sealed\-record\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$script/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$sc\-put\-property\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$sc\-put\-cte/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$scheme\-init/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$scheme\-greeting/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$scheme/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$rtd\-counts\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$revisit/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$reset\-protect/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$reset\-port\-flags\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$require\-libraries/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$require\-include/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$report\-string/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$remake\-rtd/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$reloc/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$record\-type\-field\-offsets/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$record\-type\-descriptor/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$record\-oops/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$record\-hash\-procedure/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$record\-equal\-procedure/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$record\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$record/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$recompile\-importer\-path/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$recompile\-condition\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$real\-sym\-name/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$real\-\>flonum/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$read\-time\-stamp\-counter/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$read\-performance\-monitoring\-counter/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$raw\-tc\-mutex/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$raw\-collect\-cond/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ratio\-numerator/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ratio\-denominator/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$quotient\-remainder/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ptr\-copy\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$profile\-source\-data\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$profile\-show\-database/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$profile\-block\-data\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$procedure\-name/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$print\-pass\-stats/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$port\-info/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$port\-handler/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$port\-flags\-set\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$pass\-time/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$pass\-stats/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$pass\-stats\-fields/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$parse\-format\-string/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$open\-source\-file/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$open\-file\-output\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$open\-file\-input\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$open\-file\-input\/output\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$open\-bytevector\-list\-output\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$oops/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$oops\/c/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$object\-set\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$object\-ref/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$object\-in\-heap\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$object\-address/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$null\-continuation/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$np\-tracer/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$np\-reset\-timers\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$np\-last\-pass/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$np\-get\-timers/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$np\-compile/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$np\-boot\-code/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$noexpand\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$maybe\-compile\-file/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$mark\-invoked\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$map/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-vtable/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-tlc/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-textual\-output\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-textual\-input\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-textual\-input\/output\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-src\-condition/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-source\-oops/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-rnrs\-libraries/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-relocation\-table\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-record\-type/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-record\-type\-descriptor/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-record\-constructor\-descriptor/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-recompile\-condition/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-read/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-promise/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-object\-finder/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-load\-binary/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-library\-requirements\-options/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-graph\-env/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-ftype\-guardian/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-fptr/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-foreign\-procedure/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-foreign\-callable/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-fmt\-\>expr/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-file\-options/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-fasl\-strip\-options/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-exactnum/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-eqhash\-vector/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-eq\-hashtable/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-environment/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-code\-object/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-closure/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-cinst/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-boot\-header/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-boot\-file/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-binary\-output\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-binary\-input\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-binary\-input\/output\-port/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-base\-modules/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$make\-annotation\-options/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$loop\-unroll\-limit/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$lookup\-library\-entry/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$logxor/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$logtest/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$logor/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$lognot/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$logbit\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$logbit1/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$logbit0/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$logand/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$locate\-source/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$load\-library/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$list\-length/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$library\-search/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$lexical\-error/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$last\-new\-vector\-element/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$keep\-live/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$io\-init/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$invoke\-program/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$invoke\-library/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$invalid\-ftype\-index/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$interpret\-backend/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$intern\-gensym/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$intern3/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$intern2/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$integer\-8\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$integer\-64\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$integer\-56\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$integer\-48\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$integer\-40\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$integer\-32\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$integer\-24\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$integer\-16\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$instantiate\-code\-object/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$install\-program\-desc/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$install\-library\/rt\-desc/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$install\-library\/rt\-code/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$install\-library\-entry/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$install\-library\/ct\-desc/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$install\-library\/ct\-code/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$install\-library\-clo\-info/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$install\-guardian/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$install\-ftype\-guardian/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$inexactnum\-real\-part/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$inexactnum\-imag\-part/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$inexactnum\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$import\-library/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$impoops/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$immediate\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ht\-veclen/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ht\-minlen/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$hashtable\-veclen/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$hashtable\-size\-\>minlen/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$hashtable\-report/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$hand\-coded/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$guard/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$gensym\-\>pretty\-name/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$gc\-real\-time/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$gc\-cpu\-time/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fxvector\-set\-immutable\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fxvector\-set\!\-check\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fxvector\-ref\-check\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fxu\</
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fx\+\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fx\*/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fx\//
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fx\-\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fxaddress/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ftype\-pointer\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ftype\-guardian\-oops/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ftd\-\>members/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ftd\-size/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ftd\-compound\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ftd\-atomic\-category/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ftd\-as\-box\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ftd\-alignment/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$ftd\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fp\-type\-\>pred/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-unlock\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-spin\-lock\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-wchar\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-unsigned\-8\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-unsigned\-64\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-unsigned\-56\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-unsigned\-48\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-unsigned\-40\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-unsigned\-32\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-unsigned\-24\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-unsigned\-16\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-wchar\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-unsigned\-64\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-unsigned\-56\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-unsigned\-48\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-unsigned\-40\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-unsigned\-32\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-unsigned\-24\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-unsigned\-16\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-single\-float\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-integer\-64\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-integer\-56\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-integer\-48\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-integer\-40\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-integer\-32\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-integer\-24\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-integer\-16\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-fixnum\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-double\-float\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-swap\-boolean\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-single\-float\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-integer\-8\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-integer\-64\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-integer\-56\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-integer\-48\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-integer\-40\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-integer\-32\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-integer\-24\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-integer\-16\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-fixnum\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-double\-float\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-char\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-boolean\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-unsigned\-8\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-unsigned\-64\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-unsigned\-56\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-unsigned\-48\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-unsigned\-40\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-unsigned\-32\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-unsigned\-24\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-unsigned\-16\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-swap\-unsigned\-64\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-swap\-unsigned\-56\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-swap\-unsigned\-48\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-swap\-unsigned\-40\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-swap\-unsigned\-32\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-swap\-unsigned\-24\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\-swap\-unsigned\-16\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-set\-bits\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-wchar/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-unsigned\-8/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-unsigned\-64/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-unsigned\-56/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-unsigned\-48/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-unsigned\-40/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-unsigned\-32/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-unsigned\-24/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-unsigned\-16/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-unsigned\-8/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-unsigned\-64/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-unsigned\-56/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-unsigned\-48/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-unsigned\-40/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-unsigned\-32/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-unsigned\-24/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-unsigned\-16/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-swap\-unsigned\-64/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-swap\-unsigned\-56/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-swap\-unsigned\-48/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-swap\-unsigned\-40/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-swap\-unsigned\-32/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-swap\-unsigned\-24/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ubits\-swap\-unsigned\-16/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-wchar/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-unsigned\-64/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-unsigned\-56/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-unsigned\-48/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-unsigned\-40/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-unsigned\-32/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-unsigned\-24/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-unsigned\-16/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-single\-float/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-integer\-64/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-integer\-56/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-integer\-48/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-integer\-40/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-integer\-32/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-integer\-24/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-integer\-16/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-fixnum/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-double\-float/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-swap\-boolean/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-single\-float/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-integer\-8/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-integer\-64/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-integer\-56/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-integer\-48/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-integer\-40/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-integer\-32/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-integer\-24/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-integer\-16/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-unsigned\-8/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-unsigned\-64/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-unsigned\-56/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-unsigned\-48/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-unsigned\-40/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-unsigned\-32/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-unsigned\-24/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-unsigned\-16/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-swap\-unsigned\-64/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-swap\-unsigned\-56/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-swap\-unsigned\-48/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-swap\-unsigned\-40/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-swap\-unsigned\-32/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-swap\-unsigned\-24/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-ibits\-swap\-unsigned\-16/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-\&ref/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-fixnum/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-double\-float/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-char/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-boolean/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-ref\-bits/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-offset\-addr/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-lock\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-locked\-incr\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-locked\-decr\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-init\-lock\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-fptr\-set\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fptr\-fptr\-ref/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fp\-string\-\>utf8/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fp\-string\-\>utf32/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fp\-string\-\>utf16/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fp\-filter\-type/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$format\-scheme\-version/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$foreign\-wchar\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$foreign\-entry/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$foreign\-entries/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$foreign\-char\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$flush\-instruction\-cache/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$flonum\-sign/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$flonum\-\>fixnum/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$flonum\-exponent/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$flonum\-\>digits/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$flhash/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fleqv\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$\+/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$\*/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$\//
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$\-/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$\=/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$\</
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$\<\=/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fixed\-path\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$filter\-foreign\-type/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$filter\-conv/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fasl\-wrf\-graph/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fasl\-table/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fasl\-start/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fasl\-out/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fasl\-file\-equal\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fasl\-enter/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fasl\-bld\-graph/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$fasl\-base\-rtd/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$expand\-fp\-ftype/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$expand\/cte/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$expand\/cte\/optimize/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$exactnum\-real\-part/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$exactnum\-imag\-part/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$exactnum\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$event/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$error\-handling\-mode\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$errno\-\>string/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$errno/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$eq\-hashtable\-values/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$eq\-hashtable\-keys/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$eq\-hashtable\-entries/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$eq\-hashtable\-copy/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$eq\-hashtable\-clear\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$eq\-hashtable\-cells/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$eol\-style\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$enum\-set\-members/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$dynamic\-closure\-counts/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$do\-wind/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$dofmt/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$distinct\-bound\-ids\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$current\-winders/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$current\-stack\-link/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$c\-tlv/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$cte\-optimization\-info/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$c\-stlv\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$cpvalid/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$cpletrec/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$cpcommonize/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$cpcheck\-prelex\-flags/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$cpcheck/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$cp0/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$continuation\-winders/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$continuation\-stack\-ref/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$continuation\-stack\-length/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$continuation\-stack\-clength/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$continuation\-return\-offset/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$continuation\-return\-livemask/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$continuation\-return\-code/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$continuation\-link/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$continuation\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$constituent\-ports/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$constituent\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$compute\-size/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$compute\-composition/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$compound\-condition\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$compound\-condition\-components/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$compile\-host\-library/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$compiled\-file\-header\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$compile\-backend/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$collect\-rendezvous/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$code\-pinfo\*/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$code\-name/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$code\-arity\-mask/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$code\-info/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$code\-free\-count/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$code\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$c\-make\-code/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$c\-make\-closure/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$closure\-ref/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$closure\-length/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$closure\-code/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$close\-resurrected\-mutexes\&conditions/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$close\-resurrected\-files/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$close\-files/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$clear\-source\-lines\-cache/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$clear\-pass\-stats/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$clear\-dynamic\-closure\-counts/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$check\-heap\-errors/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$c\-error/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$capture\-fasl\-target/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$bytevector\-set\-immutable\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$bytevector\-set\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$bytevector\-set\!\-check\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$bytevector\-ref\-check\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$byte\-copy\!/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$build\-invoke\-program/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$build\-install\-library\/rt\-code/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$build\-install\-library\/ct\-code/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$breakhere/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$bigpositive\?/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$bignum\-length/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$as\-time\-goes\-by/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$assembly\-output/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$apply/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$allocate\-thread\-parameter/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$address\-\>object/
+syntax match schemeVariable /\v(\#(2|3)?\%)?\$address\-in\-heap\?/
+" End of generated content
+
+highlight default link schemeError Error
+
+highlight default link schemeKeyword Statement
+highlight default link schemeVariable Function
+
+highlight default link schemeString String
+highlight default link schemeCharacter Character
+highlight default link schemeNumber Number
+highlight default link schemeBoolean Boolean
+
+highlight default link schemeFormatDirective PreProc
+
+highlight default link schemeDelimiter Delimiter
+highlight default link schemeConstant Constant
+
+highlight default link schemeComment Comment
+highlight default link schemeCommentNB CommentNB
+highlight default link schemeDatumComment Comment
+highlight default link schemeDatumCommentForm Comment
+highlight default link schemeMultilineComment Comment
+
+
+let b:did_scheme_syntax = 1
+
+unlet b:did_scheme_syntax
+let b:current_syntax = 'scheme'
+let &cpo = s:cpo
+unlet s:cpo
+

@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =9
+let g:netrw_dirhist_9='/Users/akeep/bench/larceny/test/Benchmarking/R7RS'
+let g:netrw_dirhist_8='/Users/akeep/Documents/fromSeagate/Documents/classes/b649/assignments/A01/ext/machines'
+let g:netrw_dirhist_7='/Users/akeep/dots'
+let g:netrw_dirhist_6='/Users/akeep/test'
+let g:netrw_dirhist_5='/Users/akeep/tmp/lighttpd.vagrant'
+let g:netrw_dirhist_4='/Users/akeep/tmp/lighttpd.test.robotman.org'
+let g:netrw_dirhist_3='/Users/akeep/toMove/vim-config'
+let g:netrw_dirhist_2='/Users/akeep/toMove'
+let g:netrw_dirhist_1='/Users/akeep/turnstile/src/main/scheme'
+let g:netrw_dirhist_0='/Users/akeep/turnstile/src/main'
