@@ -20,5 +20,10 @@ vim.opt.mouse = "nv"
 vim.opt.clipboard:append "unnamedplus"
 
 -- select a colorscheme
-require("one_monokai").setup()
+local status_ok, one_monokai = pcall(require, "one_monokai")
+if status_ok then
+  one_monokai.setup()
+else
+  print("Unable to load one_monokai colorscheme.")
+end
 vim.opt.termguicolors = true

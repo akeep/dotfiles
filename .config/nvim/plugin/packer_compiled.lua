@@ -88,6 +88,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/akeep/.local/share/nvim/site/pack/packer/start/vim-lawrencium",
     url = "https://github.com/ludovicchabant/vim-lawrencium"
+  },
+  ["vim-tmux-navigator"] = {
+    loaded = true,
+    path = "/Users/akeep/.local/share/nvim/site/pack/packer/start/vim-tmux-navigator",
+    url = "https://github.com/christoomey/vim-tmux-navigator"
   }
 }
 

@@ -24,6 +24,9 @@ return require('packer_boot').startup(function(use)
   use "ludovicchabant/vim-lawrencium"
   use "tpope/vim-fugitive"
 
+  -- Tmux helpers
+  use "christoomey/vim-tmux-navigator"
+
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if PACKER_BOOTSTRAP then
