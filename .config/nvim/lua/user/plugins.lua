@@ -14,6 +14,14 @@ packer.init {
   }
 }
 
+-- Autocommand that reloads neovim whenever you save the plugins.lua file
+vim.cmd [[
+  augroup packer_user_config
+    autocmd!
+    autocmd BufWritePost plugins.lua source <afile> | PackerSync
+  augroup end
+]]
+
 return require('packer_boot').startup(function(use)
   use "wbthomason/packer.nvim" -- Have packer manage itself
 
@@ -26,6 +34,10 @@ return require('packer_boot').startup(function(use)
 
   -- Tmux helpers
   use "christoomey/vim-tmux-navigator"
+
+  -- Language Server Features
+  use 'neovim/nvim-lspconfig'
+  use({'scalameta/nvim-metals', requires = { "nvim-lua/plenary.nvim" }})
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins

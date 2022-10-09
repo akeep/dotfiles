@@ -18,12 +18,3 @@ vim.opt.mouse = "nv"
 
 -- clipboard options
 vim.opt.clipboard:append "unnamedplus"
-
--- select a colorscheme
-local status_ok, one_monokai = pcall(require, "one_monokai")
-if status_ok then
-  one_monokai.setup()
-else
-  print("Unable to load one_monokai colorscheme.")
-end
-vim.opt.termguicolors = true
