@@ -26,7 +26,9 @@ return require('packer_boot').startup(function(use)
   use "wbthomason/packer.nvim" -- Have packer manage itself
 
   -- colorschemes
+  use "shaeinst/roshnivim-cs"
   use "cpea2506/one_monokai.nvim"
+  use "rafamadriz/neon"
 
   -- Source control plugins.
   use "ludovicchabant/vim-lawrencium"

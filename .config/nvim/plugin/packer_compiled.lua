@@ -74,6 +74,11 @@ end
 time([[try_loadstring definition]], false)
 time([[Defining packer_plugins]], true)
 _G.packer_plugins = {
+  neon = {
+    loaded = true,
+    path = "/Users/akeep/.local/share/nvim/site/pack/packer/start/neon",
+    url = "https://github.com/rafamadriz/neon"
+  },
   ["nvim-lspconfig"] = {
     loaded = true,
     path = "/Users/akeep/.local/share/nvim/site/pack/packer/start/nvim-lspconfig",
@@ -98,6 +103,11 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/akeep/.local/share/nvim/site/pack/packer/start/plenary.nvim",
     url = "https://github.com/nvim-lua/plenary.nvim"
+  },
+  ["roshnivim-cs"] = {
+    loaded = true,
+    path = "/Users/akeep/.local/share/nvim/site/pack/packer/start/roshnivim-cs",
+    url = "https://github.com/shaeinst/roshnivim-cs"
   },
   ["vim-fugitive"] = {
     loaded = true,
