@@ -30,6 +30,11 @@ return require('packer_boot').startup(function(use)
   use "cpea2506/one_monokai.nvim"
   use "rafamadriz/neon"
 
+  -- add the fancies
+  use { 'nvim-lualine/lualine.nvim',
+        requires = { 'kyazdani42/nvim-web-devicons', opt = true }}
+  use 'nvim-treesitter/nvim-treesitter'
+
   -- Source control plugins.
   use "ludovicchabant/vim-lawrencium"
   use "tpope/vim-fugitive"
@@ -39,7 +44,7 @@ return require('packer_boot').startup(function(use)
 
   -- Language Server Features
   use 'neovim/nvim-lspconfig'
-  use({'scalameta/nvim-metals', requires = { "nvim-lua/plenary.nvim" }})
+  use {'scalameta/nvim-metals', requires = { "nvim-lua/plenary.nvim" }}
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
